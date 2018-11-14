@@ -1,0 +1,232 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>fantasy-web-app</title>
+
+    <style type="text/css">
+        html, body {
+            background-color: rgba(0, 0, 0, 0);
+        }
+    </style>
+
+    <link rel="stylesheet" href="css/fantasyvis.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <script type="text/javascript" src="js/fantasyvis.js"></script>
+    <script type="text/javascript" src="js/neovis.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js" ></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.sound.js"></script>
+    <!--<script type="text/javascript" src="sketch.js"></script>-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
+
+    <script id="template" type="x-tmpl-mustache">
+        <div class="row">
+            <div id= "fantasy_p5_container_{{id}}" class="container-fluid fantasy_p5_container">
+                <div class="row">
+                    <div class="col-lg">
+                        <div id="fantasy_vis_{{id}}" class="fantasy_vis"></div>
+                    </div>
+                    <div class="col-">
+                        <div id="fantasy_config_{{id}}" class="fantasy_config"></div>
+                        <div id="props_vis_{{id}}" class="props_vis"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/javascript">
+
+        class Button {
+
+            constructor(text, x, y, size, backgroundColor, processP5) {
+                this.text = text;
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.backgroundColor= backgroundColor;
+                this.processP5 = processP5;
+            }
+
+            create() {
+                this.shape();
+            }
+
+            shape() {
+                this.processP5.fill(this.backgroundColor);
+                this.processP5.noStroke();
+                this.processP5.rect(this.x, this.y, this.size, this.size, 10);
+                if (this.processP5.focused) {
+                    this.processP5.fill(this.backgroundColor + 200);
+                } else {
+                    this.processP5.fill(this.backgroundColor + 100);
+                }
+
+                if (this.isSelected()) {
+                    this.processP5.fill(this.backgroundColor + 150);
+                }
+                this.processP5.rect(this.x+5, this.y+5, this.size-10, this.size-10, 7);
+                this.processP5.fill(0, 102, 153);
+
+                this.processP5.textFont('Helvetica', 18);
+                this.processP5.text(this.text, this.x + this.size/2/2, this.y + this.size/2 + 10);
+                this.processP5.fill(this.backgroundColor);
+            }
+
+            isSelected() {
+                return this.processP5.mouseX > this.x && this.processP5.mouseX < this.x + this.size
+                    && this.processP5.mouseY > this.y && this.processP5.mouseY < this.y + this.size;
+            }
+
+            mouseClicked() {}
+        }
+
+        function createNeoVis(jQuery) {
+            createVisDivElement();
+
+            let config = getConfig(getActiveFantasyVisId(), getActiveFantasyConfigId(), jQuery);
+            let newVisElement = new NeoVis.default(config);
+            current_container_id++;
+            newVisElement.renderNeoVis();
+            newVisElement.clOnCompleted = function () {
+                newVisElement._network.on( 'click', function(properties) {
+                    console.log('clicked node ' + properties.nodes);
+                });
+            };
+            return newVisElement;
+        }
+
+        function drawNeoVis() {
+            visElements[current_container_id] =
+                createNeoVis("MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 200");
+
+            var sketch = function(p) {
+                let canvas;
+                let buttons = [];
+
+                p.setup = function(){
+                    canvas = p.createCanvas(200, 200);
+                    canvas.position("20", "120");
+
+                    let confBtn = new Button("cf", 5, 40, 40, 70 , p);
+                    let fullBtn = new Button("fs", 5, 5, 40, 0 , p);
+
+                    buttons.push(confBtn);
+                    buttons.push(fullBtn);
+
+                    fullBtn.mouseClicked = function() {
+                        if (this.isSelected()) {
+                            this.processP5.fullscreen(!this.processP5.fullscreen());
+                        }
+                    }
+
+                    confBtn.mouseClicked = function () {
+                        if (this.isSelected()) {
+
+                            let s = "#fantasy_config_0";
+                            let config = this.processP5.select(s);
+                            let configElement = config.elt;
+
+                            if (configElement.style.display === "none") {
+                                configElement.style.display = "block";
+                            } else {
+                                configElement.style.display = "none";
+                            }
+                        }
+                    }
+                };
+
+                p.draw = function() {
+                    p.clear();
+                    let selected;
+
+                    for (const button of buttons) {
+                        button.create();
+                        if (!selected && button.isSelected()) {
+                            selected = true;
+                        }
+                    }
+
+                    if (selected) {
+                        p.cursor(p.HAND);
+                    } else {
+                        p.cursor(p.ARROW);
+                    }
+                };
+
+                p.mouseClicked = function() {
+                    for (const button of buttons) {
+                        button.mouseClicked();
+                    }
+                };
+            };
+
+            let sketchP5 = new p5(sketch, getActiveFantasyConfigId());
+            p5Elements[current_container_id] = sketchP5;
+        }
+
+        //jQuery jesli sie przyda
+        $(function () {
+            $("#draggable").draggable();
+            $("#droppable").droppable({
+                drop: function (event, ui) {
+                    $(this)
+                        .addClass("ui-state-highlight")
+                        .find("p")
+                        .html("Dropped!");
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body onload="drawNeoVis()">
+<div>
+    <!--<label for="cypher">Cyper query:</label>-->
+    <textarea rows="3" cols=100 id="cypher">MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 200</textarea>
+    <!--<input type="submit" value="Submit" id="reload">-->
+    <!--<input type="submit" value="Stabilize" id="stabilize">-->
+    <!--<div id="draggable" class="ui-widget-content">-->
+        <!--<p>Drag me to my target</p>-->
+    <!--</div>-->
+    <!--<div id="droppable" class="ui-widget-header">-->
+        <!--<p>Drop here</p>-->
+    <!--</div>-->
+
+
+    <div id="main" class="container-fluid">
+
+    </div>
+</div>
+</body>
+
+<script>
+    $("#reload").click(function () {
+        visElements[current_container_id] = createNeoVis($("#cypher").val());
+    });
+
+    $("#stabilize").click(function () {
+        visElements[current_container_id].stabilize();
+    })
+</script>
+
+</html>
