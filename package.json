@@ -51,15 +51,15 @@
 
     {
       "from": "node_modules/neo4j-driver/",
-      "to": "src/main/resources/static/js/vendor/neo4j-javascript-driver/"
+      "to": "src/main/resources/static/js/neovis/vendor/neo4j-javascript-driver/"
     },
     {
       "from": "node_modules/vis/",
-      "to": "src/main/resources/static/js/vendor/vis/"
+      "to": "src/main/resources/static/js/neovis/vendor/vis/"
     },
     {
       "from": "dist/",
-      "to": "src/main/resources/static/js/"
+      "to": "src/main/resources/static/js/neovis/"
     }
   ]
 }
