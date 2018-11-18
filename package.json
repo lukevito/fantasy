@@ -1,0 +1,65 @@
+{
+  "name": "neovis.js",
+  "version": "1.0.0",
+  "description": "Graph visualizations powered by vis.js with data from Neo4j.",
+  "main": "./dist/neovis.js",
+  "directories": {
+    "doc": "doc",
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "postinstall": "vendor-copy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neo4j-contrib/neovis.js.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/neo4j-contrib/neovis.js/issues"
+  },
+  "homepage": "https://github.com/neo4j-contrib/neovis.js#readme",
+  "devDependencies": {
+    "css-loader": "^0.28.0",
+    "file-loader": "^0.11.1",
+    "style-loader": "^0.16.1",
+    "url-loader": "^1.1.2",
+    "webpack": "^3.0.0"
+  },
+  "dependencies": {
+    "ajv": "^5.0.0",
+    "neo4j-driver": "^1.7.1",
+    "rimraf": "^2.6.2",
+    "vendor-copy": "^2.0.0",
+    "vendors": "^1.0.2",
+    "vis": "^4.21.0"
+  },
+  "vendorCopy": [
+    {
+      "from": "node_modules/neo4j-driver/",
+      "to": "src/main/js/vendor/neo4j-javascript-driver/"
+    },
+    {
+      "from": "node_modules/vis/",
+      "to": "src/main/js/vendor/vis/"
+    },
+
+    {
+      "from": "node_modules/neo4j-driver/",
+      "to": "src/main/resources/static/js/vendor/neo4j-javascript-driver/"
+    },
+    {
+      "from": "node_modules/vis/",
+      "to": "src/main/resources/static/js/vendor/vis/"
+    },
+    {
+      "from": "dist/",
+      "to": "src/main/resources/static/js/"
+    }
+  ]
+}

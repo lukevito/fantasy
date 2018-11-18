@@ -7,7 +7,7 @@
 		exports["NeoVis"] = factory();
 	else
 		root["NeoVis"] = factory();
-})(this, function() {
+})(typeof self !== 'undefined' ? self : this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -22752,8 +22752,8 @@ if(content.locals) module.exports = content.locals;
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js!./vis-network.min.css", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js!./vis-network.min.css");
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./vis-network.min.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./vis-network.min.css");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
