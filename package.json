@@ -61,5 +61,11 @@
       "from": "dist/",
       "to": "src/main/resources/static/js/neovis/"
     }
+  ],
+  "vendorCopy": [
+    {
+      "from": "dist/",
+      "to": "src/main/resources/static/js/neovis/"
+    }
   ]
 }

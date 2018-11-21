@@ -63,6 +63,7 @@ export default class NeoVis {
 
         let captionKey   = this._config && this._config.labels && this._config.labels[label] && this._config.labels[label]['caption'],
             sizeKey = this._config && this._config.labels && this._config.labels[label] && this._config.labels[label]['size'],
+            sizeCorrection = this._config && this._config.labels && this._config.labels[label] && this._config.labels[label]['sizeCorrection'],
             sizeCypher = this._config && this._config.labels && this._config.labels[label] && this._config.labels[label]['sizeCypher'],
             communityKey = this._config && this._config.labels && this._config.labels[label] && this._config.labels[label]['community'];
 
@@ -98,11 +99,19 @@ export default class NeoVis {
 
             if (sizeProp && typeof sizeProp === "number") {
                 // propety value is a number, OK to use
-                node['value'] = sizeProp;
+                if (typeof sizeCorrection === "number" ) {
+                    node['value'] = sizeProp / sizeCorrection;
+                }  else {
+                    node['value'] = sizeProp;
+                }
             } else if (sizeProp && typeof sizeProp === "object" && sizeProp.constructor.name === "Integer") {
                 // property value might be a Neo4j Integer, check if we can call toNumber on it:
                 if (sizeProp.inSafeRange()) {
-                    node['value'] = sizeProp.toNumber();
+                    if (typeof sizeCorrection === "number" ) {
+                        node['value'] = sizeProp.toNumber() / sizeCorrection;
+                    }  else {
+                        node['value'] = sizeProp.toNumber();
+                    }
                 } else {
                     // couldn't convert to Number, use default
                     node['value'] = 1.0;
@@ -124,7 +133,7 @@ export default class NeoVis {
         } else {
             try {
                 if (n.properties[communityKey]) {
-                    node['group'] = n.properties[communityKey].toNumber() || label || 0;  // FIXME: cast to Integer
+                    node['group'] = n.properties[communityKey] || label || 0;
 
                 }
                 else {
