@@ -294,25 +294,6 @@ export default class NeoVis {
                 session.close();
 
                 let append_options = {
-                    edges: {
-                        // "arrows": {
-                        //     "to": {
-                        //         "enabled": true,
-                        //         "scaleFactor": 2
-                        //     }
-                        // },
-                        "color": {
-                            "highlight": "rgba(132,63,121,1)",
-                            "inherit": false
-                        },
-                        "font": {
-                            "size": 45
-                        },
-                        "smooth": {
-                            "forceDirection": "none"
-                        },
-                        "width": 6
-                    },
                     layout: {
                         improvedLayout: false,
                         hierarchical: {

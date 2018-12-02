@@ -54,13 +54,10 @@
     </script>
 
     <script type="text/javascript">
-
-
-
         async function createNeoVis(jQuery) {
             createVisDivElement();
 
-            const config = await getConfig(getActiveFantasyVisId(), getActiveFantasyConfigId(), jQuery);
+            const config = await getConfig(getNextFantasyVisId(), getNextFantasyConfigId(), jQuery);
             let newVisElement = new NeoVis.default(config);
             current_container_id++;
             newVisElement.renderNeoVis();
@@ -74,7 +71,7 @@
 
         async function drawNeoVis() {
             visElements[current_container_id] =
-                await createNeoVis("MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 200");
+                await createNeoVis("match p = ((n)-[:DEPENDS_ON*2..2]->(n)) return p");
 
             var sketch = function(p) {
                 let canvas;
@@ -99,7 +96,7 @@
                     confBtn.mouseClicked = function () {
                         if (this.isSelected()) {
 
-                            let s = "#" + getActiveFantasyVisId();
+                            let s = "#" + getCurrentFantasyConfigId();
                             let config = this.processP5.select(s);
                             let configElement = config.elt;
 
@@ -137,7 +134,7 @@
                 };
             };
 
-            let sketchP5 = new p5(sketch, getActiveFantasyConfigId());
+            let sketchP5 = new p5(sketch, getNextFantasyConfigId());
             p5Elements[current_container_id] = sketchP5;
         }
 
@@ -160,17 +157,9 @@
 <body onload="drawNeoVis()">
 <div>
     <!--<label for="cypher">Cyper query:</label>-->
-    <textarea rows="3" cols=100 id="cypher">MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 200</textarea>
+    <textarea rows="3" cols=100 id="cypher">match p = ((n)-[:DEPENDS_ON*2..2]->(n)) return p</textarea>
     <input type="submit" value="Submit" id="reload">
-    <!--<input type="submit" value="Stabilize" id="stabilize">-->
-    <!--<div id="draggable" class="ui-widget-content">-->
-        <!--<p>Drag me to my target</p>-->
-    <!--</div>-->
-    <!--<div id="droppable" class="ui-widget-header">-->
-        <!--<p>Drop here</p>-->
-    <!--</div>-->
-
-
+    <input type="submit" value="Stabilize" id="stabilize">
     <div id="main" class="container-fluid">
 
     </div>
@@ -179,6 +168,7 @@
 
 <script>
     $("#reload").click(function () {
+        alert( "Handler for .mouseup() callsadsadsadsaded." );
         visElements[current_container_id] = createNeoVis($("#cypher").val());
     });
 
@@ -186,9 +176,11 @@
         visElements[current_container_id].stabilize();
     });
 
-    $( "#container_config_0" ).dblclick(function() {
+    $("#container_config_0" ).click(function() {
         alert( "Handler for .mouseup() called." );
-    })
+    });
+
+
 </script>
 
 </html>

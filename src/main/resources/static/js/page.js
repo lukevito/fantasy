@@ -1,12 +1,20 @@
 var visElements= [];
 var p5Elements= [];
+var configScrollPos= [];
 var current_container_id = 0;
 
-function getActiveFantasyVisId() {
+function getNextFantasyVisId() {
     return "container_vis_" + current_container_id;
 }
-function getActiveFantasyConfigId() {
+function getNextFantasyConfigId() {
     return "container_config_" + current_container_id;
+}
+
+function getCurrentFantasyVisId() {
+    return "container_vis_" + (current_container_id - (current_container_id === 0?0:1));
+}
+function getCurrentFantasyConfigId() {
+    return "container_config_" + (current_container_id - (current_container_id === 0?0:1));
 }
 
 // Example GET method implementation:
@@ -34,7 +42,7 @@ let getOptions  = async () => {
     return await response.json();
 };
 
-async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 200") {
+async function getConfig(id_vis_container, id_config_container, cypherQ = "match p = ((n)-[:DEPENDS_ON*2..2]->(n)) return p") {
     let configuration_container = self.document.getElementById(id_config_container);
 
     let neo4jConf = await getConfiguration();
@@ -45,7 +53,7 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
     options["options"] = {
         nodes: {
             shape: 'dot',
-            "font": {
+            font: {
                 "color": "rgba(0,0,0,1)",
                 "size": 10,
                 "face": "tahoma",
@@ -58,6 +66,31 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
                 }
             }
         },
+        edges: {
+            "arrows": {
+                "to": {
+                    "enabled": true,
+                    "scaleFactor": 1
+                }
+            },
+            "color": {
+                "color": "rgba(9,135,188,0.50)",
+                "highlight": "rgba(21,40,132,0.75)",
+                "hover": "rgba(101,102,132,0.65)",
+                "opacity": 0.07,
+                "inherit": false
+            },
+            "selectionWidth": 3,
+            "font": {
+                "size": 45
+            },
+            "hoverWidth": 4,
+            "smooth": {
+                "forceDirection": "vertical",
+                "roundness": 0.15
+            },
+            "width": 3
+        },
         groups: {
             diamonds: {
                 color: {background: 'red', border: 'white'},
@@ -68,7 +101,6 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
                 shape: 'dot',
                 color: 'cyan'
             },
-            mints: {color: 'rgb(0,255,140)'},
             Team: {
                 shape: 'circularImage',
                 color: "rgba(150,150,150,1)",
@@ -87,12 +119,33 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
             },
             Player: {
                 shape: 'image',
-
                 scaling: {
                     min: 30,
                     max: 100
                 }
+            },
 
+            Bean: {
+                shape: 'icon',
+                icon: {
+                    face: 'FontAwesome',
+                    code: '\uf15b',
+                    size: 100,  //50,
+                    color:'#2cb0e0'
+                },
+                shadow: {
+                    "enabled": true,
+                    "color": "rgba(30,30,30,0.5)",
+                },
+                "font": {
+                    "color": "rgba(0,0,0,1)",
+                    "size": 4,
+                    "face": "tahoma",
+                    "background": "rgba(44,23,48,0)",
+                    "strokeWidth": 1,
+                    "strokeColor": "rgba(33,46,255,1)",
+                    "vadjust": 10
+                },
             },
 
             "POINT GUARD": {
@@ -154,8 +207,12 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
 
             }
         },
-        physics: {
-            stabilization: false
+        "physics": {
+            "barnesHut": {
+                "gravitationalConstant": -23750,
+                "centralGravity": 1.65
+            },
+            "minVelocity": 0.75
         },
         "interaction": {
             "hover": true,
@@ -178,12 +235,6 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
                 if (path.indexOf('physics') !== -1) {
                     return true;
                 }
-                if (path.indexOf('nodes') !== -1) {
-                    return true;
-                }
-                if (path.indexOf('smooth') !== -1 || option === 'smooth') {
-                    return true;
-                }
                 return false;
             },
             container: configuration_container
@@ -191,7 +242,6 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
 
     let lables = {
         labels: {
-            //"Character": "name",
             Team: {
                 caption: "name",
                 //community: "position"//TODO:
@@ -204,12 +254,13 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
                 sizeCorrection: 50,
                 community: "position"
                 //"sizeCypher": "MATCH (n) WHERE id(n) = {id} MATCH (n)-[r]-() RETURN sum(r.weight) AS c"
-            }
-        },
-        relationships: {
-            PLAYED: {
-                thickness: "weight",//TODO:
-                caption: false
+            },
+            Bean: {
+                caption: "beanName",
+                size: 50,//TODO:
+                //sizeCorrection: 50,
+                //community: "position"
+                //"sizeCypher": "MATCH (n) WHERE id(n) = {id} MATCH (n)-[r]-() RETURN sum(r.weight) AS c"
             }
         }
     };
@@ -217,6 +268,10 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "MATCH
     let relationships=  {
         relationships: {
             PLAYED: {
+                thickness: "weight",//TODO:
+                caption: false
+            },
+            DEPENDS_ON: {
                 thickness: "weight",//TODO:
                 caption: false
             }
@@ -241,7 +296,21 @@ function createVisDivElement() {
     $(htmlElement).html(rendered);
 
     var mainElement = document.getElementById("main");
-    mainElement.insertAdjacentElement('beforeend', htmlElement.firstElementChild);
+    let element = mainElement.insertAdjacentElement('afterbegin', htmlElement.firstElementChild);
+    let myInputElements = element.querySelectorAll("#" + getCurrentFantasyConfigId());
+
+    Array.from(myInputElements).forEach(el => {
+        el.addEventListener('change', function (event) {
+            console.log(event.target.value);
+            configScrollPos[current_container_id] = el.firstElementChild.scrollTop;
+        }, true)
+    });
+    Array.from(myInputElements).forEach(el => {
+        el.addEventListener('change', function (event) {
+            console.log(event.target.value);
+            el.firstElementChild.scrollTop = configScrollPos[current_container_id];
+        })
+    });
 }
 
 class Button {

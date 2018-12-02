@@ -48,7 +48,6 @@
       "from": "node_modules/vis/",
       "to": "src/main/js/vendor/vis/"
     },
-
     {
       "from": "node_modules/neo4j-driver/",
       "to": "src/main/resources/static/js/neovis/vendor/neo4j-javascript-driver/"
