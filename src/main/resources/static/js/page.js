@@ -68,16 +68,15 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "match
         },
         edges: {
             "arrows": {
-                "to": {
+                "middle": {
                     "enabled": true,
                     "scaleFactor": 1
                 }
             },
             "color": {
-                "color": "rgba(9,135,188,0.50)",
-                "highlight": "rgba(21,40,132,0.75)",
-                "hover": "rgba(101,102,132,0.65)",
-                "opacity": 0.07,
+                "color": "#009DDE",
+                "highlight": "#002864",
+                "hover": "#009DDE",
                 "inherit": false
             },
             "selectionWidth": 3,
@@ -126,26 +125,26 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "match
             },
 
             Bean: {
-                shape: 'icon',
+                shape: 'image',
+                size: 50,
                 icon: {
                     face: 'FontAwesome',
-                    code: '\uf15b',
+                    code: '\uf573',
                     size: 100,  //50,
-                    color:'#2cb0e0'
+                    color:'#009DDE'
                 },
                 shadow: {
                     "enabled": true,
                     "color": "rgba(30,30,30,0.5)",
                 },
                 "font": {
-                    "color": "rgba(0,0,0,1)",
-                    "size": 4,
+                    "size": 12,
+                    "color": "#001C54",
                     "face": "tahoma",
-                    "background": "rgba(44,23,48,0)",
-                    "strokeWidth": 1,
-                    "strokeColor": "rgba(33,46,255,1)",
-                    "vadjust": 10
-                },
+                    "strokeColor": "#000000",
+                    "strokeWidth": 0.25,
+                    "vadjust": 2
+                }
             },
 
             "POINT GUARD": {
@@ -210,7 +209,8 @@ async function getConfig(id_vis_container, id_config_container, cypherQ = "match
         "physics": {
             "barnesHut": {
                 "gravitationalConstant": -23750,
-                "centralGravity": 1.65
+                "centralGravity": 1.65,
+                "springLength": 285
             },
             "minVelocity": 0.75
         },
