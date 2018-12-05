@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>fantasy-web-app</title>
+    <title>web-app</title>
 
     <style type="text/css">
         html, body {
@@ -13,19 +13,20 @@
         }
     </style>
 
-    <link rel="stylesheet" href="css/fantasyvis.css">
+    <link rel="stylesheet" href="css/page.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
-    <script type="text/javascript" src="js/page.js"></script>
+    <script type="text/javascript" src="js/page-vis.js"></script>
+    <script type="text/javascript" src="js/page-sketch.js"></script>
     <script type="text/javascript" src="js/neovis/neovis.js"></script>
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>-->
+
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js" ></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.sound.js"></script>
-    <!--<script type="text/javascript" src="sketch.js"></script>-->
+
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
@@ -54,102 +55,15 @@
     </script>
 
     <script type="text/javascript">
-        async function createNeoVis(jQuery) {
-            createVisDivElement();
-
-            const config = await getConfig(getNextFantasyVisId(), getNextFantasyConfigId(), jQuery);
-            let newVisElement = new NeoVis.default(config);
-            current_container_id++;
-            newVisElement.renderNeoVis();
-            newVisElement.clOnCompleted = function () {
-                newVisElement._network.on( 'click', function(properties) {
-                    console.log('clicked node ' + properties.nodes);
-                });
-            };
-            return newVisElement;
-        }
-
         async function drawNeoVis() {
             visElements[current_container_id] =
-                await createNeoVis("match p = ((n)-[:DEPENDS_ON*2..2]->(n)) return p");
+                await createNeoVis("MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 200");
 
-            var sketch = function(p) {
-                let canvas;
-                let buttons = [];
-
-                p.setup = function(){
-                    canvas = p.createCanvas(200, 200);
-                    canvas.position("20", "120");
-
-                    let confBtn = new Button("cf", 5, 40, 40, 70 , p);
-                    let fullBtn = new Button("fs", 5, 5, 40, 0 , p);
-
-                    buttons.push(confBtn);
-                    buttons.push(fullBtn);
-
-                    fullBtn.mouseClicked = function() {
-                        if (this.isSelected()) {
-                            this.processP5.fullscreen(!this.processP5.fullscreen());
-                        }
-                    }
-
-                    confBtn.mouseClicked = function () {
-                        if (this.isSelected()) {
-
-                            let s = "#" + getCurrentFantasyConfigId();
-                            let config = this.processP5.select(s);
-                            let configElement = config.elt;
-
-                            if (configElement.style.display === "none") {
-                                configElement.style.display = "block";
-                            } else {
-                                configElement.style.display = "none";
-                            }
-                        }
-                    }
-                };
-
-                p.draw = function() {
-                    p.clear();
-                    let selected;
-
-                    for (const button of buttons) {
-                        button.create();
-                        if (!selected && button.isSelected()) {
-                            selected = true;
-                        }
-                    }
-
-                    if (selected) {
-                        p.cursor(p.HAND);
-                    } else {
-                        p.cursor(p.ARROW);
-                    }
-                };
-
-                p.mouseClicked = function() {
-                    for (const button of buttons) {
-                        button.mouseClicked();
-                    }
-                };
-            };
-
-            let sketchP5 = new p5(sketch, getNextFantasyConfigId());
-            p5Elements[current_container_id] = sketchP5;
+            p5Elements[current_container_id] =  createTopRightMenuP5(20, 120, 100, 100);
         }
 
-        //jQuery jesli sie przyda
-        $(function () {
-            $("#draggable").draggable();
-            $("#droppable").droppable({
-                drop: function (event, ui) {
-                    $(this)
-                        .addClass("ui-state-highlight")
-                        .find("p")
-                        .html("Dropped!");
-                }
-            });
-        });
+        //jQuery
+        $(function () {});
     </script>
 
 </head>
@@ -160,27 +74,19 @@
     <textarea rows="3" cols=100 id="cypher">match p = ((n)-[:DEPENDS_ON*2..2]->(n)) return p</textarea>
     <input type="submit" value="Submit" id="reload">
     <input type="submit" value="Stabilize" id="stabilize">
+
     <div id="main" class="container-fluid">
 
     </div>
 </div>
 </body>
-
 <script>
     $("#reload").click(function () {
-        alert( "Handler for .mouseup() callsadsadsadsaded." );
         visElements[current_container_id] = createNeoVis($("#cypher").val());
     });
 
     $("#stabilize").click(function () {
         visElements[current_container_id].stabilize();
     });
-
-    $("#container_config_0" ).click(function() {
-        alert( "Handler for .mouseup() called." );
-    });
-
-
 </script>
-
 </html>

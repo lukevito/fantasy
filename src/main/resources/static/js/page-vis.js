@@ -3,46 +3,29 @@ var p5Elements= [];
 var configScrollPos= [];
 var current_container_id = 0;
 
-function getNextFantasyVisId() {
-    return "container_vis_" + current_container_id;
+async function createNeoVis(jQuery) {
+    createVisDivElement();
+
+    const config = await getConfig(getNextFantasyVisId(), getNextFantasyConfigId(), jQuery);
+    let newVisElement = new NeoVis.default(config);
+    current_container_id++;
+    newVisElement.renderNeoVis();
+
+    newVisElement.clOnCompleted = function () {
+        newVisElement._network.on( 'click', function(properties) {
+            if (properties.nodes.length === 1) {
+                nodeMenu = new NodeMenu("cf", 40, 40, 140, 70);
+            } else {
+                nodeMenu = null;
+            }
+            console.log('clicked node ' + properties.nodes);
+        });
+    };
+
+    return newVisElement;
 }
-function getNextFantasyConfigId() {
-    return "container_config_" + current_container_id;
-}
 
-function getCurrentFantasyVisId() {
-    return "container_vis_" + (current_container_id - (current_container_id === 0?0:1));
-}
-function getCurrentFantasyConfigId() {
-    return "container_config_" + (current_container_id - (current_container_id === 0?0:1));
-}
-
-// Example GET method implementation:
-let getMethodHeader = {
-    method: "GET", // *GET, POST, PUT, DELETE, etc.
-    // mode: "no-cors", // no-cors, cors, *same-origin
-    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: "include", // include, *same-origin, omit
-    headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        // "Content-Type": "application/x-www-form-urlencoded",
-    },
-    redirect: "follow", // manual, *follow, error
-    referrer: " no-referrer", // no-referrer, *client
-    // body: JSON.stringify(data), // body data type must match "Content-Type" header
-};
-
-let getConfiguration  = async () => {
-    const response =  await fetch("http://localhost:9000/neo4jConf", getMethodHeader);
-    return await response.json();
-};
-
-let getOptions  = async () => {
-    const response =  await fetch("http://localhost:9000/neo4jConf", getMethodHeader);
-    return await response.json();
-};
-
-async function getConfig(id_vis_container, id_config_container, cypherQ = "match p = ((n)-[:DEPENDS_ON*2..2]->(n)) return p") {
+async function getConfig(id_vis_container, id_config_container, cypherQ) {
     let configuration_container = self.document.getElementById(id_config_container);
 
     let neo4jConf = await getConfiguration();
@@ -313,46 +296,40 @@ function createVisDivElement() {
     });
 }
 
-class Button {
+let getConfiguration  = async () => {
+    const response =  await fetch("http://localhost:9000/neo4jConf", getMethodHeader);
+    return await response.json();
+};
 
-    constructor(text, x, y, size, backgroundColor, processP5) {
-        this.text = text;
-        this.x = x;
-        this.y = y;
-        this.size = size;
-        this.backgroundColor= backgroundColor;
-        this.processP5 = processP5;
-    }
+let getOptions  = async () => {
+    const response =  await fetch("http://localhost:9000/neo4jConf", getMethodHeader);
+    return await response.json();
+};
 
-    create() {
-        this.shape();
-    }
-
-    shape() {
-        this.processP5.fill(this.backgroundColor);
-        this.processP5.noStroke();
-        this.processP5.rect(this.x, this.y, this.size, this.size, 10);
-        if (this.processP5.focused) {
-            this.processP5.fill(this.backgroundColor + 200);
-        } else {
-            this.processP5.fill(this.backgroundColor + 100);
-        }
-
-        if (this.isSelected()) {
-            this.processP5.fill(this.backgroundColor + 150);
-        }
-        this.processP5.rect(this.x+5, this.y+5, this.size-10, this.size-10, 7);
-        this.processP5.fill(0, 102, 153);
-
-        this.processP5.textFont('Helvetica', 18);
-        this.processP5.text(this.text, this.x + this.size/2/2, this.y + this.size/2 + 10);
-        this.processP5.fill(this.backgroundColor);
-    }
-
-    isSelected() {
-        return this.processP5.mouseX > this.x && this.processP5.mouseX < this.x + this.size
-            && this.processP5.mouseY > this.y && this.processP5.mouseY < this.y + this.size;
-    }
-
-    mouseClicked() {}
+function getNextFantasyVisId() {
+    return "container_vis_" + current_container_id;
 }
+function getNextFantasyConfigId() {
+    return "container_config_" + current_container_id;
+}
+
+function getCurrentFantasyVisId() {
+    return "container_vis_" + (current_container_id - (current_container_id === 0?0:1));
+}
+function getCurrentFantasyConfigId() {
+    return "container_config_" + (current_container_id - (current_container_id === 0?0:1));
+}
+// Example GET method implementation:
+let getMethodHeader = {
+    method: "GET", // *GET, POST, PUT, DELETE, etc.
+    // mode: "no-cors", // no-cors, cors, *same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "include", // include, *same-origin, omit
+    headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        // "Content-Type": "application/x-www-form-urlencoded",
+    },
+    redirect: "follow", // manual, *follow, error
+    referrer: " no-referrer", // no-referrer, *client
+    // body: JSON.stringify(data), // body data type must match "Content-Type" header
+};
