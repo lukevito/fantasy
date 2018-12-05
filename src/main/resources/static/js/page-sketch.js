@@ -1,7 +1,8 @@
 let canvas;
-
 let buttons = [];
-let nodeMenu;
+
+
+let mouseMenu;
 
 function createTopRightMenuP5(xPos, yPos, sizeX, sizeY) {
     var sketch = function (p) {
@@ -48,10 +49,6 @@ function createTopRightMenuP5(xPos, yPos, sizeX, sizeY) {
                 }
             }
 
-            if (nodeMenu) {
-                nodeMenu.create(p);
-            }
-
             if (selected) {
                 p.cursor(p.HAND);
             } else {
@@ -68,7 +65,50 @@ function createTopRightMenuP5(xPos, yPos, sizeX, sizeY) {
 
     return new p5(sketch, getNextFantasyConfigId());
 }
+function createMouseMenuP5(mouseX, mouseY, sizeX, sizeY) {
+    let nodeMenu;
+    let menuCanvas;
 
+    var sketch = function (p) {
+        p.setup = function () {
+            menuCanvas = p.createCanvas(sizeX, sizeY);
+            menuCanvas.position(mouseX, mouseY);
+
+            nodeMenu = new NodeMenu("button", 5, 5, 40, 0, p);
+
+            nodeMenu.mouseClicked = function () {
+                if (this.isSelected()) {
+                    this.processP5.fullscreen(!this.processP5.fullscreen());
+                }
+            };
+        };
+
+        p.draw = function () {
+            p.clear();
+            if (nodeMenu) {
+                let selected;
+
+                nodeMenu.create();
+
+                if (!selected && nodeMenu.isSelected()) {
+                    selected = true;
+                }
+
+                if (selected) {
+                    p.cursor(p.HAND);
+                } else {
+                    p.cursor(p.ARROW);
+                }
+            }
+        };
+
+        p.mouseClicked = function () {
+           nodeMenu.mouseClicked();
+        };
+    };
+
+    return new p5(sketch, getNextFantasyConfigId());
+}
 
 class Button {
 
@@ -118,36 +158,37 @@ class Button {
 
 class NodeMenu {
 
-    constructor(text, x, y, size, backgroundColor) {
+    constructor(text, x, y, size, backgroundColor, processP5) {
         this.text = text;
         this.x = x;
         this.y = y;
         this.size = size;
         this.backgroundColor= backgroundColor;
+        this.processP5 = processP5;
     }
 
-    create(processP5) {
-        this.shape(processP5);
+    create() {
+        this.shape();
     }
 
-    shape(processP5) {
-        processP5.fill(this.backgroundColor + 100);
-        let x = processP5.mouseX;
-        let y = processP5.mouseY;
-        processP5.rect(x, y, this.size, this.size, 10);
-        processP5.fill(this.backgroundColor + 200);
+    shape() {
+        this.processP5.fill(this.backgroundColor + 100);
+        let x = this.x;
+        let y = this.y;
+        this.processP5.rect(x, y, this.size, this.size, 10);
+        this.processP5.fill(this.backgroundColor + 200);
 
-        processP5.rect(x+5, y+5, this.size-10, this.size-10, 7);
-        processP5.fill(0, 102, 153);
+        this.processP5.rect(x+5, y+5, this.size-10, this.size-10, 7);
+        this.processP5.fill(0, 102, 153);
 
-        processP5.textFont('Helvetica', 18);
-        processP5.text(this.text, x + this.size/2/2, y + this.size/2 + 10);
-        processP5.fill(this.backgroundColor);
+        this.processP5.textFont('Helvetica', 18);
+        this.processP5.text(this.text, x + this.size/2/2, y + this.size/2 + 10);
+        this.processP5.fill(this.backgroundColor);
     }
 
-    isSelected(processP5) {
-        return this.processP5.mouseX > this.x && processP5.mouseX < this.x + this.size
-            && processP5.mouseY > y && processP5.mouseY < this.y + this.size;
+    isSelected() {
+        return this.processP5.mouseX > this.x && this.processP5.mouseX < this.x + this.size
+            && this.processP5.mouseY > this.y && this.processP5.mouseY < this.y + this.size;
     }
 
     mouseClicked() {}

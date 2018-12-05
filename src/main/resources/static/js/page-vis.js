@@ -3,6 +3,21 @@ var p5Elements= [];
 var configScrollPos= [];
 var current_container_id = 0;
 
+let selectedNode;
+
+function focusOnNode(nodeId, visNetwork) {
+    var options = {
+        // position: {x:positionx,y:positiony}, // this is not relevant when focusing on nodes
+        scale: 1.0,
+        offset: {x:0,y:0},
+        animation: {
+            duration: 1000,
+            easingFunction: "easeInOutQuad"
+        }
+    };
+    visNetwork.focus(nodeId, options);
+}
+
 async function createNeoVis(jQuery) {
     createVisDivElement();
 
@@ -12,13 +27,34 @@ async function createNeoVis(jQuery) {
     newVisElement.renderNeoVis();
 
     newVisElement.clOnCompleted = function () {
-        newVisElement._network.on( 'click', function(properties) {
+        newVisElement._network.on( 'doubleClick', function(properties) {
             if (properties.nodes.length === 1) {
-                nodeMenu = new NodeMenu("cf", 40, 40, 140, 70);
+                let newSelection = properties.nodes[0];
+                // focusOnNode(newSelection, newVisElement._network);
+
+                if (mouseMenu) {
+                    mouseMenu.remove();
+                }
+                mouseMenu = createMouseMenuP5(properties.pointer.DOM.x, properties.pointer.DOM.y, 100, 100);
+                selectedNode = newSelection;
+
             } else {
-                nodeMenu = null;
+                if (mouseMenu) {
+                    mouseMenu.remove();
+                }
             }
+
             console.log('clicked node ' + properties.nodes);
+        });
+        newVisElement._network.on( 'dragStart', function(properties) {
+                if (mouseMenu) {
+                    mouseMenu.remove();
+                }
+        });
+        newVisElement._network.on( 'click', function(properties) {
+                if (mouseMenu) {
+                    mouseMenu.remove();
+                }
         });
     };
 
@@ -203,7 +239,8 @@ async function getConfig(id_vis_container, id_config_container, cypherQ) {
             //     "enabled": true
             // },
             "multiselect": true,
-            "navigationButtons": true
+            "navigationButtons": true,
+            "tooltipDelay": 2675
         },
         "manipulation": {
                 "enabled": true,

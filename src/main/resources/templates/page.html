@@ -57,7 +57,7 @@
     <script type="text/javascript">
         async function drawNeoVis() {
             visElements[current_container_id] =
-                await createNeoVis("MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 200");
+                await createNeoVis("MATCH p=(player:Player)-[r:PLAYED]->(team:Team) WHERE player.image is not null RETURN p limit 20");
 
             p5Elements[current_container_id] =  createTopRightMenuP5(20, 120, 100, 100);
         }
