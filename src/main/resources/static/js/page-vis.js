@@ -334,12 +334,12 @@ function createVisDivElement() {
 }
 
 let getConfiguration  = async () => {
-    const response =  await fetch("http://localhost:9000/neo4jConf", getMethodHeader);
+    const response =  await fetch("http://localhost:8080/neo4jConf", getMethodHeader);
     return await response.json();
 };
 
 let getOptions  = async () => {
-    const response =  await fetch("http://localhost:9000/neo4jConf", getMethodHeader);
+    const response =  await fetch("http://localhost:8080/neo4jConf", getMethodHeader);
     return await response.json();
 };
 
