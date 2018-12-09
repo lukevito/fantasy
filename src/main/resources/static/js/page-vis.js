@@ -2,7 +2,7 @@ var visElements= [];
 var p5Elements= [];
 var configScrollPos= [];
 var current_container_id = 0;
-
+var iDupa = 1;
 let selectedNode;
 
 function focusOnNode(nodeId, visNetwork) {
@@ -18,6 +18,73 @@ function focusOnNode(nodeId, visNetwork) {
     visNetwork.focus(nodeId, options);
 }
 
+function addNode(nodes, id, label) {
+    try {
+        nodes.add({
+            id: id,
+            label: label
+        });
+    }
+    catch (err) {
+        alert(err);
+    }
+}
+
+function updateNode(nodes, id, label) {
+    try {
+        nodes.update({
+            id: id,
+            label: label
+        });
+    }
+    catch (err) {
+        alert(err);
+    }
+}
+function removeNode(nodes, id) {
+    try {
+        nodes.remove({id: id});
+    }
+    catch (err) {
+        alert(err);
+    }
+}
+
+function addEdge(edges, id , from, to) {
+    try {
+        edges.add({
+            id: id,
+            from: from,
+            to: to
+        });
+    }
+    catch (err) {
+        alert(err);
+    }
+}
+function updateEdge(edges, id , from, to) {
+    try {
+        edges.update({
+            id: id,
+            from: from,
+            to: to
+        });
+    }
+    catch (err) {
+        alert(err);
+    }
+}
+function removeEdge(edges, id) {
+    try {
+        edges.remove({id: id});
+    }
+    catch (err) {
+        alert(err);
+    }
+}
+
+
+
 async function createNeoVis(jQuery) {
     createVisDivElement();
 
@@ -30,7 +97,7 @@ async function createNeoVis(jQuery) {
         newVisElement._network.on( 'doubleClick', function(properties) {
             if (properties.nodes.length === 1) {
                 let newSelection = properties.nodes[0];
-                // focusOnNode(newSelection, newVisElement._network);
+                focusOnNode(newSelection, newVisElement._network);
 
                 if (mouseMenu) {
                     mouseMenu.remove();
@@ -56,6 +123,24 @@ async function createNeoVis(jQuery) {
                     mouseMenu.remove();
                 }
         });
+
+        var ws = new WebSocket('ws://127.0.0.1:15674/ws');
+        var client = Stomp.over(ws);
+
+        var on_connect = function() {
+            id = client.subscribe("spring-boot-vis", function(d) {
+                iDupa ++;
+                addNode(newVisElement._nodesData, iDupa, d.body);
+            });
+            console.log('connected');
+        };
+        var on_error =  function() {
+            console.log('error');
+        };
+
+        client.connect('guest', 'guest', on_connect, on_error, '/');
+
+
     };
 
     return newVisElement;

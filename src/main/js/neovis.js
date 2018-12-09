@@ -36,6 +36,10 @@ export default class NeoVis {
         this._edges = {};
         this._data = {};
         this._network = null;
+
+        this._nodesData = null;
+        this._edgesData = null;
+
         this._container = document.getElementById(config.container_id);
 
     }
@@ -307,9 +311,12 @@ export default class NeoVis {
                 let options = Object.assign({}, self._config && self._config.options, append_options);
 
                 let container = self._container;
-                self._data = {
-                    "nodes": new vis.DataSet(Object.values(self._nodes)),
-                    "edges": new vis.DataSet(Object.values(self._edges))
+                    self._nodesData = new vis.DataSet(Object.values(self._nodes));
+                    self._edgesData = new vis.DataSet(Object.values(self._edges));
+
+                    self._data = {
+                    "nodes": self._nodesData,
+                    "edges": self._edgesData
                 };
 
                 //console.log(self._data.nodes);

@@ -33,8 +33,11 @@
   },
   "dependencies": {
     "ajv": "^5.0.0",
+    "amqplib": "^0.5.3",
     "neo4j-driver": "^1.7.1",
+    "net": "^1.0.2",
     "rimraf": "^2.6.2",
+    "tls": "0.0.1",
     "vendor-copy": "^2.0.0",
     "vendors": "^1.0.2",
     "vis": "^4.21.0"
@@ -56,12 +59,6 @@
       "from": "node_modules/vis/",
       "to": "src/main/resources/static/js/neovis/vendor/vis/"
     },
-    {
-      "from": "dist/",
-      "to": "src/main/resources/static/js/neovis/"
-    }
-  ],
-  "vendorCopy": [
     {
       "from": "dist/",
       "to": "src/main/resources/static/js/neovis/"
